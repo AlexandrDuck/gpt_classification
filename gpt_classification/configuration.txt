@@ -1,0 +1,4 @@
+promt=Приветик
+csv_file=csv_test.csv
+delimiter=;
+text_column=Пост
