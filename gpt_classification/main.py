@@ -1,3 +1,5 @@
+import csv
+
 from g4f.Provider import You
 
 from gpt_classification.classification import filtration
@@ -15,10 +17,10 @@ if __name__ == '__main__':
         texts.append(row['Пост'])
     _filter = filtration.Filtration(files.__promt, providers)
     _filter.classify_garbage(list_of_texts=texts)
-    count = 0
+    to_csv_file = open('data/classified_texts.csv', 'w', newline='', encoding='utf-8')
+    headers = ['Текст', 'Классификация']
+    writer = csv.DictWriter(to_csv_file, delimiter=';', fieldnames=headers)
     for chunks in _filter.get_result_list():
         for chunk in chunks:
-            if chunk['response'] == 'Проверить вручную':
-                count += 1
-            print(chunk['response'])
-    print(count)
+            writer.writerow({'Текст': chunk['text'], 'Классификация': chunk['response']})
+    to_csv_file.close()

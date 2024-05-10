@@ -30,7 +30,6 @@ class Filtration:
             return 'Не реклама'
 
     async def __if_garbage(self, text, provider):
-        #print(f'Try to classify text.')
         try:
             response = await g4f.ChatCompletion.create_async(
                 model='gpt-3.5-turbo',
