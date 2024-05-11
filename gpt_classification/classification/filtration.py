@@ -2,6 +2,8 @@ import asyncio
 import time
 import g4f
 
+from gpt_classification.utils import files
+
 
 class Filtration:
 
@@ -29,32 +31,29 @@ class Filtration:
         else:
             return 'Не реклама'
 
-    async def __if_garbage(self, text, provider):
+    async def __if_garbage(self, _dict):
         try:
             response = await g4f.ChatCompletion.create_async(
-                model='gpt-3.5-turbo',
-                provider=provider,
-                messages=[{"role": "user", "content": f"В этом тексте есть реклама? - {text}"}]
+                model=_dict['Model'],
+                provider=_dict['Provider'],
+                messages=[{"role": "user", "content": f"{files.get_promt()} - {_dict['Text']}"}]
             )
             ans = ''
             for token in response:
                 ans += token
-            return {'text': text, 'response': self.__check_response(response)}
+            _dict['Response'] = ans
+            return _dict
         except Exception as ex:
             print(f'Classification of text failed. {ex}')
-            return {'text': text, 'response': 'Проверить вручную'}
+            _dict['Response'] = 'Проверить вручную'
+            return _dict
 
     async def __classify_garbage(self, chunks):
         tasks = []
-        i = 0
         time0 = time.time()
         for chunk in chunks:
-            provider = self.providers[i]
             tasks.append(await asyncio.gather(
-                *[self.__if_garbage(text, provider) for text in chunk]))
-            i += 1
-            if i >= len(self.providers):
-                i = 0
+                *[self.__if_garbage(_dict) for _dict in chunk]))
         for task in tasks:
             self.result_list.append(task)
         print(f'Time spent: {time.time()-time0}')
