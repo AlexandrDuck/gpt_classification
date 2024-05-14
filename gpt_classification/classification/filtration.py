@@ -17,31 +17,51 @@ class Filtration:
         return self.result_list
 
     def __check_response(self, text):
-        positive_keys = ['есть реклама', 'присутствует реклама', 'содержит рекламу']
-        negative_keys = ['нет рекламы', 'отсутствует реклама', 'не ясно', 'не нашел', 'нет информации о наличии рекламы в тексте', 'не содержит', 'не обнаружил информации']
+        categories = ['поздравления', 'спорт', 'культура', 'благотворительность', 'реклама', 'контент интернет-магазинов', 'покупка', 'продажа', 'обмен', 'вакансии', 'поиск знакомств', 'путешествия', 'религия']
+        positive_keys = ['текст можно отнести', 'текст можно однозначно отнести', 'он относится к теме', 'текст оносится к теме']
+        negative_keys = ['не удалось найти', 'не подпадает', 'не ясно', 'не подходит', 'не относится', 'нельзя однозначно', 'сложно однозначно', 'трудно однозначно', 'невозможно однозначно', 'не могу однозначно', 'не может быть однозначно', 'нет информации', 'не содержит достаточно', 'не содержит явной', 'не содержит явных', 'не является однозначно', 'не является явным']
         text = str(text).lower()
         if text != '':
+            if text == 'да':
+                return 'Мусор'
+            if text == 'нет':
+                return 'Не мусор'
             for neg_key in negative_keys:
                 if neg_key in text:
-                    return 'Не реклама'
+                    return 'Не мусор'
+
             for pos_key in positive_keys:
                 if pos_key in text:
-                    return 'Реклама'
+                    for word in text.split('"'):
+                        if word in categories:
+                            return 'Мусор'
+                    for word in text.split("'"):
+                        if word in categories:
+                            return 'Мусор'
+                    for word in text.split('*'):
+                        if word in categories:
+                            return 'Мусор'
+                    for word in text.split('**'):
+                        if word in categories:
+                            return 'Мусор'
+                    return 'Не мусор'
+
             return 'Проверить вручную'
         else:
-            return 'Не реклама'
+            return 'Провермть вручную'
 
     async def __if_garbage(self, _dict):
         try:
             response = await g4f.ChatCompletion.create_async(
                 model=_dict['Model'],
                 provider=_dict['Provider'],
-                messages=[{"role": "user", "content": f"{files.get_promt()} - {_dict['Text']}"}]
+                messages=[{"role": "user", "content": f'Мне нужно классифицировать текст. У меня есть такой текст: {_dict["Text"]}. Можно ли однозначно отнести его к одной из следующих тем: поздравления, спорт, культура, благотворительность, реклама, контент интернет-магазинов, покупка, продажа, обмен, вакансии, путешествия, религия?'}]
             )
             ans = ''
             for token in response:
                 ans += token
             _dict['Response'] = ans
+            _dict['Response_clear'] = self.__check_response(ans)
             return _dict
         except Exception as ex:
             print(f'Classification of text failed. {ex}')
