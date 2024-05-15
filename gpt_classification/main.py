@@ -17,21 +17,19 @@ if __name__ == '__main__':
     for row in file:
         for model in models:
             texts.append({
-                'Text': str(row['Пост']),
+                'Text': str(row[files.get_text_column()]),
                 'Model': model,
                 'Provider': You,
-                'Response': '',
-                'Response_clear': ''
+                'Response': ''
             })
 
     _filter = filtration.Filtration(files.__promt, providers)
     _filter.classify_garbage(list_of_texts=texts)
     to_csv_file = open(files.get_data_file('classified_texts.csv'), 'w', newline='', encoding='utf-8')
-    headers = ['Текст', 'Классификация', 'Классификация_clear']
+    headers = ['Текст', 'Классификация']
     writer = csv.DictWriter(to_csv_file, delimiter=';', fieldnames=headers)
     writer.writeheader()
     for chunks in _filter.get_result_list():
         for chunk in chunks:
-            #print(chunk)
-            writer.writerow({'Текст': chunk['Text'], 'Классификация': chunk['Response'], 'Классификация_clear': chunk['Response_clear']})
+            writer.writerow({'Текст': chunk['Text'], 'Классификация': chunk['Response']})
     to_csv_file.close()

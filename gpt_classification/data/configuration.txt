@@ -2,3 +2,4 @@ promt=Мне нужно классифицировать текст. У меня
 csv_file=csv_test.csv
 delimiter=;
 text_column=Пост
+n_texts=100

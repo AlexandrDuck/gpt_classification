@@ -60,8 +60,7 @@ class Filtration:
             ans = ''
             for token in response:
                 ans += token
-            _dict['Response'] = ans
-            _dict['Response_clear'] = self.__check_response(ans)
+            _dict['Response'] = self.__check_response(ans)
             return _dict
         except Exception as ex:
             print(f'Classification of text failed. {ex}')
@@ -79,7 +78,7 @@ class Filtration:
         print(f'Time spent: {time.time()-time0}')
 
     def classify_garbage(self, list_of_texts):
-        list_of_texts = list_of_texts[:100]
+        list_of_texts = list_of_texts[:files.get_n_texts()]
         chunk_size = 20
         chunks = [list_of_texts[i:i + chunk_size] for i in range(0, len(list_of_texts), chunk_size)]
         print(f'Classification started...')

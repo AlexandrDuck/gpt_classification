@@ -1,8 +1,6 @@
 import concurrent.futures
 
 import g4f
-import requests
-from bs4 import BeautifulSoup
 from g4f.Provider import __all__, ProviderUtils
 
 proxies_list = []
